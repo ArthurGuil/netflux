@@ -1,0 +1,18 @@
+gesdinet_jwt_refresh_token:
+    # Durée de vie du refresh token (30 jours)
+    ttl: 2592000
+    
+    # Paramètre attendu dans la requête
+    token_parameter_name: refresh_token
+    
+    # Entity User
+    user_identity_field: email
+    
+    # Nom de la classe RefreshToken (optionnel si vous gardez celle par défaut)
+    refresh_token_class: App\Entity\RefreshToken
+    
+    # Manager (Doctrine par défaut)
+    manager_type: orm
+    
+    # Supprimer automatiquement les refresh tokens expirés
+    ttl_update: true

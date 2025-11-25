@@ -1,0 +1,11 @@
+vich_uploader:
+    db_driver: orm
+    storage: file_system
+    mappings:
+        movie_image:
+            uri_prefix: /uploads/movies
+            upload_destination: '%kernel.project_dir%/public/uploads/movies'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            # inject_on_load: false
+            # delete_on_update: true
+            # delete_on_remove: true
