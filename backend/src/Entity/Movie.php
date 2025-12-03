@@ -267,7 +267,6 @@ class Movie
         $this->imageFile = $imageFile;
         if ($imageFile) {
             $this->updatedAt = new DateTime();
-            // error_log('Image file received: ' . $imageFile->getFilename());
         }
     }
 

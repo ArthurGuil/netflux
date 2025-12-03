@@ -43,6 +43,7 @@ export function useUsers() {
     // Mettre à jour un utilisateur
     const updateUser = async (id, payload) => {
         loading.value = true
+        console.log(payload)
         try {
             const { data } = await api.patch(`/users/${id}`, payload, {
                 headers: {

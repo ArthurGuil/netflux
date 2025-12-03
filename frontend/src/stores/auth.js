@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isRefreshing = ref(false)
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => decoded.value?.roles?.includes('ROLE_ADMIN'))
+  const isAdmin = computed(() => decoded.value?.roles?.includes('ROLE_ADMIN') || false)
 
   const isTokenExpired = (token) => {
     try {
