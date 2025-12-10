@@ -93,10 +93,10 @@ const handleFavorite = async (movie) => {
         </router-link>
 
         <div class="flex flex-col sm:flex-row gap-4 mb-6 items-start">
-            <input v-model="searchQuery" type="text" placeholder="Rechercher un film..."
+            <input v-model="searchQuery" name="search" type="text" placeholder="Rechercher un film..."
                 class="p-2 rounded bg-gray-900 text-white border border-red-600 flex-1" />
 
-            <select v-model="typeFilter"
+            <select v-model="typeFilter" name="type"
                 class="cursor-pointer p-2 rounded bg-gray-900 text-white border border-red-600">
                 <option value="">Tous les types</option>
                 <option v-for="type in typeOptions" :key="type" :value="type">{{ typeLabel(type) }}</option>
