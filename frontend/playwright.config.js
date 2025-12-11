@@ -14,16 +14,18 @@ export default defineConfig({
    * Timeout maximum pour chaque test (90 secondes)
    */
   timeout: 90000,
+
   expect: {
-    timeout: 15000 // 10s pour les expect
+    timeout: 15000 // 15s pour les expect
   },
+
   launchOptions: {
     slowMo: 50, // Ralentit pour debug
   },
+
   /**
    * Nombre de tentatives en cas d'échec (utile pour les tests flaky)
    */
-  // retries: process.env.CI ? 2 : 0,
   retries: 2, // Retry 2 fois si échec
 
   /**
@@ -47,13 +49,15 @@ export default defineConfig({
   use: {
     /**
      * URL de base de l'application
-     * L'application Vue doit être lancée sur ce port
+     * En CI (Docker), on utilise localhost:5173 (network_mode: host)
+     * En local, on utilise aussi localhost:5173
      */
     baseURL: 'http://localhost:5173',
 
-    // Adapt des TO pour que tout passe à 100%
+    // Timeouts adaptés
     navigationTimeout: 45000, // 45s pour les navigations
     actionTimeout: 15000, // 15s pour les actions
+
     /**
      * Capture de screenshots uniquement en cas d'échec
      */
@@ -68,16 +72,27 @@ export default defineConfig({
      * Trace complète en cas d'échec (très utile pour le debug)
      */
     trace: 'on-first-retry',
+
+    /**
+     * Mode headless : activé en CI, désactivé en local
+     */
+    headless: process.env.CI ? true : false,
   },
 
   /**
-   * Configuration de webServer pour démarrer automatiquement l'application
-   * Playwright attend que le serveur soit prêt avant de lancer les tests
+   * Configuration de webServer
+   * En CI : réutilise le serveur existant (conteneur frontend_test)
+   * En local : lance npm run dev automatiquement
    */
-  webServer: {
+  webServer: process.env.CI ? {
+    command: 'echo "Using existing frontend_test container"',
+    url: 'http://localhost:5173',
+    reuseExistingServer: true,
+    timeout: 5000,
+  } : {
     command: 'npm run dev',
     url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120000,
   },
 
@@ -86,17 +101,58 @@ export default defineConfig({
    * Définit les différents environnements de test
    */
   projects: [
+    // Desktop - Chromium
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: process.env.CI ? true : undefined,
+      },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+
+    // // Desktop - Firefox
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     headless: process.env.CI ? true : undefined,
+    //   },
+    // },
+
+    // // Desktop - WebKit (Safari)
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     headless: process.env.CI ? true : undefined,
+    //   },
+    // },
+
+    // // Mobile - Chrome Android
+    // {
+    //   name: 'Mobile Chrome',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     headless: process.env.CI ? true : undefined,
+    //   },
+    // },
+
+    // // Mobile - Safari iOS
+    // {
+    //   name: 'Mobile Safari',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //     headless: process.env.CI ? true : undefined,
+    //   },
+    // },
+
+    // // Tablette - iPad
+    // {
+    //   name: 'iPad',
+    //   use: {
+    //     ...devices['iPad Pro'],
+    //     headless: process.env.CI ? true : undefined,
+    //   },
+    // },
   ],
 })

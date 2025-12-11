@@ -3,3 +3,4 @@ docker/
 .env
 .env.docker
 docker-compose.yaml
+Makefile

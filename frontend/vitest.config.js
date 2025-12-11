@@ -45,6 +45,15 @@ export default defineConfig({
         },
 
         /**
+         * Exclusion des tests e2e, ils seront lancés avec playwright
+         */
+        exclude: [
+            'node_modules',
+            'dist',
+            'tests/e2e/**'
+        ],
+
+        /**
          * Configuration de la couverture de code
          * Génère des rapports pour mesurer le pourcentage de code testé
          */
