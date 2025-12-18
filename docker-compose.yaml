@@ -1,6 +1,28 @@
 services:
   # ============================================
-  # Backend de production
+  # MySQL local pour Netflux
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: netflux_mysql_local
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - netflux_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Backend
   # ============================================
   backend:
     image: netflux-backend-prod
@@ -9,8 +31,11 @@ services:
       dockerfile: backend/Dockerfile
       target: prod
     container_name: netflux_backend_prod
+    depends_on:
+      mysql:
+        condition: service_healthy
     environment:
-      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql_cda:3306/${MYSQL_DATABASE}?serverVersion=8.0
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=8.0
       APP_ENV: prod
       APP_SECRET: ${APP_SECRET}
       CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
@@ -22,7 +47,7 @@ services:
       - backend_var:/app/var
       - backend_vendor:/app/vendor
     networks:
-      - cda_network
+      - netflux_network
     command: >
       sh -c "
       echo 'Attente MySQL...' &&
@@ -37,7 +62,7 @@ services:
     restart: unless-stopped
 
   # ============================================
-  # Nginx pour le backend
+  # Nginx Backend
   # ============================================
   nginx_backend:
     image: nginx:alpine
@@ -50,11 +75,11 @@ services:
       - ./backend/public:/app/public:ro
       - ./docker/nginx/backend.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
-      - cda_network
+      - netflux_network
     restart: unless-stopped
 
   # ============================================
-  # Frontend de production
+  # Frontend
   # ============================================
   frontend:
     image: netflux-frontend-prod
@@ -68,13 +93,14 @@ services:
     ports:
       - "${FRONTEND_PORT:-5173}:80"
     networks:
-      - cda_network
+      - netflux_network
     restart: unless-stopped
 
 volumes:
+  mysql_data:
   backend_var:
   backend_vendor:
 
 networks:
-  cda_network:
-    external: true
+  netflux_network:
+    driver: bridge
