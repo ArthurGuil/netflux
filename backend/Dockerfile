@@ -68,7 +68,9 @@ COPY backend/ .
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev
 
 # Permissions
-RUN chown -R www-data:www-data /app/var
+RUN mkdir -p /app/var/cache /app/var/log && \
+    chown -R www-data:www-data /app/var && \
+    chmod -R 775 /app/var
 
 EXPOSE 9000
 CMD ["php-fpm"]
