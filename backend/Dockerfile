@@ -17,52 +17,58 @@ RUN docker-php-ext-install \
     opcache
 
 # Installation de Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# ============================================
 # Stage développement
+# ============================================
 FROM base AS dev
 
 # Configuration PHP pour le dev
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+COPY --from=php:8.3-fpm-alpine /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 
-# Xdebug pour le dev (avec linux-headers)
-RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
+# Xdebug pour le dev (installé mais désactivé par défaut)
+RUN apk add --no-cache linux-headers $PHPIZE_DEPS \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
-    && apk del $PHPIZE_DEPS linux-headers
+    && apk del linux-headers
 
-COPY backend/composer.* ./
-RUN composer install --no-scripts --no-autoloader
-
-COPY backend/ .
-RUN composer dump-autoload --optimize
+# Xdebug désactivé par défaut (performances)
+RUN echo "xdebug.mode=off" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 EXPOSE 9000
-
 CMD ["php-fpm"]
 
+# ============================================
 # Stage production
+# ============================================
 FROM base AS prod
 
 # Configuration PHP pour la prod
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY --from=php:8.3-fpm-alpine /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-# Optimisations OPcache
+# Optimisations OPcache pour production
 RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini
+    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
 
+# Copier les fichiers composer
 COPY backend/composer.* ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
 
+# Installer les dépendances (sans dev)
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Copier le code source
 COPY backend/ .
-RUN composer dump-autoload --optimize --classmap-authoritative
+
+# Dump autoload optimisé
+RUN composer dump-autoload --optimize --classmap-authoritative --no-dev
 
 # Permissions
-RUN chown -R www-data:www-data var/
+RUN chown -R www-data:www-data /app/var
 
 EXPOSE 9000
-
 CMD ["php-fpm"]
