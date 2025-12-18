@@ -1,0 +1,103 @@
+name: CI/CD Netflux Production
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: netflux_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, zip, intl, opcache
+          coverage: none
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: composer install --no-interaction --prefer-dist
+        
+      - name: Configure Backend for Tests
+        working-directory: ./backend
+        run: |
+          cp .env.test .env
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
+        
+      - name: Run Backend Tests
+        working-directory: ./backend
+        run: php bin/phpunit
+        
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      - name: Run Frontend Unit Tests
+        working-directory: ./frontend
+        run: npm run test:unit
+        
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+        
+      - name: Install Playwright Browsers
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+        
+      - name: Run E2E Tests
+        working-directory: ./frontend
+        run: npm run test:e2e
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/projets-cda/arthur/netflux
+            
+            echo "📥 Pulling latest changes..."
+            git pull origin main
+            
+            echo "🔨 Building and restarting containers..."
+            docker compose down
+            docker compose up -d --build
+            
+            echo "⏳ Waiting for containers..."
+            sleep 15
+            
+            echo "✅ Deployment completed!"
+            docker compose ps
