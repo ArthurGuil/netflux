@@ -52,6 +52,10 @@ services:
       sh -c "
       chown -R www-data:www-data /app/var &&
       chmod -R 775 /app/var &&
+      chown www-data:www-data config/jwt/private.pem config/jwt/public.pem &&
+      mkdir -p /app/public/uploads/movies &&
+      chown -R www-data:www-data /app/public/uploads &&
+      chmod -R 775 /app/public/uploads &&
       echo 'Attente MySQL...' &&
       sleep 10 &&
       echo 'Execution des migrations...' &&
