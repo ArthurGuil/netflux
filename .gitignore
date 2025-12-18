@@ -1,6 +1,5 @@
-docker/
 .dockerignore
 .env
 .env.docker
-docker-compose.yaml
 Makefile
+docker/nginx/_frontend.conf
