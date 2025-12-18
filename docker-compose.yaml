@@ -50,6 +50,8 @@ services:
       - netflux_network
     command: >
       sh -c "
+      chown -R www-data:www-data /app/var &&
+      chmod -R 775 /app/var &&
       echo 'Attente MySQL...' &&
       sleep 10 &&
       echo 'Execution des migrations...' &&
