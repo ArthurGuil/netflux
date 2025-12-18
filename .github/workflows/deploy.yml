@@ -45,7 +45,14 @@ jobs:
       - name: Configure Backend for Tests
         working-directory: ./backend
         run: |
-          cp .env.test .env
+          sed -i 's|root@127|root:root@127|' .env.test
+          
+          mkdir -p config/jwt/test
+          openssl genpkey -out config/jwt/test/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:test_passphrase
+          openssl pkey -in config/jwt/test/private.pem -passin pass:test_passphrase -out config/jwt/test/public.pem -pubout
+          chmod 600 config/jwt/test/private.pem
+          chmod 644 config/jwt/test/public.pem
+          
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
         
