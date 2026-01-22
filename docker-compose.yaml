@@ -59,7 +59,7 @@ services:
       echo 'Attente MySQL...' &&
       sleep 10 &&
       echo 'Execution des migrations...' &&
-      php bin/console doctrine:migrations:migrate --no-interaction &&
+      php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration &&
       echo 'Warmup cache...' &&
       php bin/console cache:warmup --env=prod &&
       echo 'Demarrage PHP-FPM...' &&
