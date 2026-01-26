@@ -5,7 +5,7 @@
     <div class="flex flex-col items-center justify-center min-h-screen bg-black text-white px-4">
         <h1 class="text-5xl font-bold mb-6 text-red-600">Netflux</h1>
         <p class="text-lg mb-8 text-gray-300 text-center max-w-xl">
-            Une plateforme de streaming faite avec Vue et Symfony.
+            Une plateforme de streaming faite avec Vue et Symfony !.
         </p>
 
         <div class="flex gap-4">
