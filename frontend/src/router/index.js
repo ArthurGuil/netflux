@@ -31,11 +31,13 @@ const routes = [
         path: "/login",
         name: "login",
         component: LoginView,
+        meta: { title: 'Connexion' }
     },
     {
         path: "/register",
         name: "register",
         component: RegisterView,
+        meta: { title: 'Inscription' }
     },
 
     // GENRES (index + form create/edit)
@@ -43,19 +45,19 @@ const routes = [
         path: "/genres",
         name: "genres.index",
         component: GenreListView,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, title: 'Liste des genres' }
     },
     {
         path: "/genres/create",
         name: "genres.create",
         component: GenreFormView,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        meta: { requiresAuth: true, requiresAdmin: true, title: 'Ajouter un genre' }
     },
     {
         path: "/genres/:id/edit",
         name: "genres.edit",
         component: GenreFormView,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        meta: { requiresAuth: true, requiresAdmin: true, title: 'Modifier un genre' }
     },
 
     // MOVIES (index + form create/edit + detail)
@@ -63,25 +65,25 @@ const routes = [
         path: "/movies",
         name: "movies.index",
         component: MovieListView,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, title: 'Catalogue' }
     },
     {
         path: "/movies/create",
         name: "movies.create",
         component: MovieFormView,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        meta: { requiresAuth: true, requiresAdmin: true, title: 'Ajouter un film' }
     },
     {
         path: "/movies/:id/edit",
         name: "movies.edit",
         component: MovieFormView,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        meta: { requiresAuth: true, requiresAdmin: true, title: 'Modifier un film' }
     },
     {
         path: '/movies/:id',
         name: 'movie-detail',
         component: MovieDetailView,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, title: 'Détail du film' }
     },
 
     // USERS
@@ -89,7 +91,7 @@ const routes = [
         path: '/users',
         name: 'users.index',
         component: UserListView,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        meta: { requiresAuth: true, requiresAdmin: true, title: 'Liste des utilisateurs' }
     },
 
     // FAVORIS
@@ -97,7 +99,7 @@ const routes = [
         path: "/favorites",
         name: "favorites",
         component: () => import("@/views/movies/FavoritesView.vue"),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, title: 'Mes favoris' }
     }
 ];
 
@@ -124,6 +126,14 @@ router.beforeEach((to, from, next) => {
     }
 
     next();
+});
+
+// Gestion basique de la balise title. 
+// Pour une gestion plus avancée et pour le SEO, utiliser le package @unhead/vue
+router.afterEach((to) => {
+  document.title = to.meta.title
+    ? `Netflux - ${to.meta.title}`
+    : 'Netflux'
 });
 
 export default router;
