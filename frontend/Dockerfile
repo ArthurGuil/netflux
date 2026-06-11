@@ -43,32 +43,7 @@ FROM nginx:alpine AS prod
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Configuration Nginx pour Vue Router (mode history)
-RUN echo 'server { \
-    listen 80; \
-    server_name localhost; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    \
-    # Gzip \
-    gzip on; \
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript; \
-    \
-    # SPA routing \
-    location / { \
-    try_files $uri $uri/ /index.html; \
-    } \
-    \
-    # Cache pour les assets \
-    location /assets/ { \
-    expires 1y; \
-    add_header Cache-Control "public, immutable"; \
-    } \
-    \
-    # Sécurité \
-    add_header X-Frame-Options "SAMEORIGIN" always; \
-    add_header X-Content-Type-Options "nosniff" always; \
-    add_header X-XSS-Protection "1; mode=block" always; \
-    }' > /etc/nginx/conf.d/default.conf
+COPY docker/nginx/frontend.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
