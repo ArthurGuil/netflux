@@ -72,7 +72,7 @@ const trailerEmbedUrl = computed(() => {
 
             <div class="flex flex-col md:flex-row gap-8">
                 <!-- Poster -->
-                <div class="flex-shrink-0">
+                <div class="shrink-0">
                     <img v-if="posterUrl" :src="posterUrl" :alt="`Affiche de ${movie.title}`"
                         class="w-64 rounded border border-red-600 shadow-lg shadow-red-900/50" />
                     <div v-else
@@ -82,7 +82,7 @@ const trailerEmbedUrl = computed(() => {
                 </div>
 
                 <!-- Infos -->
-                <div class="flex-grow space-y-4">
+                <div class="grow space-y-4">
                     <p class="text-gray-300"><strong class="text-red-600">Durée :</strong> {{ movie.duration }} min</p>
 
                     <p class="text-gray-300">

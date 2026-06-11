@@ -77,8 +77,8 @@ const handleFavorite = async (movie) => {
             <div v-if="toast.show"
                 class="fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 min-w-[300px]"
                 :class="{
-                    'bg-gradient-to-r from-red-600 to-red-700': toast.type === 'remove',
-                    'bg-gradient-to-r from-green-600 to-green-700': toast.type === 'add'
+                    'bg-linear-to-r from-red-600 to-red-700': toast.type === 'remove',
+                    'bg-linear-to-r from-green-600 to-green-700': toast.type === 'add'
                 }">
                 <span class="text-2xl text-yellow-400">{{ toast.type === 'add' ? "★" : "☆" }}</span>
                 <span class="text-white font-medium flex-1">{{ toast.message }}</span>
@@ -144,7 +144,7 @@ const handleFavorite = async (movie) => {
                             </router-link>
 
                             <button v-if="auth.isLoggedIn" @click="handleFavorite(m)"
-                                class="text-yellow-400 text-2xl cursor-pointer flex-shrink-0 hover:scale-110 transition-transform">
+                                class="text-yellow-400 text-2xl cursor-pointer shrink-0 hover:scale-110 transition-transform">
                                 {{ auth.user.movies?.includes(`/api/movies/${m.id}`) ? "★" : "☆" }}
                             </button>
                         </div>
