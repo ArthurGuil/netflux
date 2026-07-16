@@ -84,12 +84,7 @@ export default defineConfig({
    * En CI : réutilise le serveur existant (conteneur frontend_test)
    * En local : lance npm run dev automatiquement
    */
-  webServer: process.env.CI ? {
-    command: 'echo "Using existing frontend_test container"',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 5000,
-  } : {
+  webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: true,
@@ -106,7 +101,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        headless: process.env.CI ? true : undefined,
+        // headless: process.env.CI ? true : undefined,
       },
     },
 

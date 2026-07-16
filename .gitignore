@@ -3,3 +3,4 @@
 .env.docker
 Makefile
 docker/nginx/_frontend.conf
+GUIDE_*

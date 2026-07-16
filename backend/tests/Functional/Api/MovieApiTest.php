@@ -150,6 +150,10 @@ class MovieApiTest extends ApiTestCase
             'duration' => 120,
             'type' => 'movie',
             'releaseDate' => '2024-01-01T00:00:00+00:00',
+             [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $this->token,
+                'CONTENT_TYPE' => 'multipart/form-data',
+            ]
         ]);
 
         $this->assertResponseStatusCodeSame(401);
